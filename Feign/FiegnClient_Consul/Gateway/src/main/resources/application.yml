@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: GatewayService
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4300"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"
+      routes:
+        - id: client_service
+          uri: lb://client-service # Utilisation de la découverte de service via Consul
+          predicates:
+            - Path=/clients/**
+
+        - id: voiture_service
+          uri: lb://voiture-service # Utilisation de la découverte de service via Consul
+          predicates:
+            - Path=/voitures/**

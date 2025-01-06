@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: GatewayService
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            client-service:
+              - uri: http://localhost:8081  # Remplacez par l'URL de votre service client
+            voiture-service:
+              - uri: http://localhost:8082  # Remplacez par l'URL de votre service voiture
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4300"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"
+      routes:
+        - id: client_service
+          uri: lb://client-service  # Utilisation de la découverte de service via Eureka
+          predicates:
+            - Path=/clients/**
+        - id: voiture_service
+          uri: lb://voiture-service  # Utilisation de la découverte de service via Eureka
+          predicates:
+            - Path=/voitures/**
+
+server:
+  port: 8888
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

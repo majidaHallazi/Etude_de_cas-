@@ -1,0 +1,38 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: GATEWAY
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        health-check-critical-timeout: 20s
+        service-name: ${spring.application.name}
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: client-service
+          uri: lb://SERVICE-CLIENT
+          predicates:
+            - Path=/client/**
+        - id: car-service
+          uri: lb://SERVICE-CAR
+          predicates:
+            - Path=/car/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

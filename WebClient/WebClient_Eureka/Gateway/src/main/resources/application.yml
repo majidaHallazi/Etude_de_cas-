@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: GatewayService
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            client-service:
+              - uri: http://localhost:8081
+            voiture-service:
+              - uri: http://localhost:8082
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4300"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"
+      routes:
+        - id: client_service
+          uri: lb://client-service
+          predicates:
+            - Path=/clients/**
+        - id: voiture_service
+          uri: lb://voiture-service
+          predicates:
+            - Path=/voitures/**
+
+server:
+  port: 8888
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
